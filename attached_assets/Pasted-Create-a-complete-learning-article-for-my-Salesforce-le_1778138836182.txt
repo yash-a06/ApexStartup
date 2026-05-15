@@ -1,0 +1,120 @@
+Create a complete learning article for my Salesforce learning platform roadmap website.
+
+The article should be beginner-friendly, practical, and interview-oriented.
+
+Topic Name: [TOPIC_NAME]
+
+Generate the article in the following structure:
+
+1. Title
+
+Create a professional and SEO-friendly title.
+
+2. Introduction
+
+Explain:
+
+What this topic is
+Why it is important in Salesforce
+Real-world usage
+3. Prerequisites
+
+Mention what users should know before learning this topic.
+
+4. Core Concepts
+
+Explain all important concepts in detail with examples.
+
+5. Architecture / Flow
+
+Explain how the feature works internally in Salesforce.
+
+6. Step-by-Step Example
+
+Create a real-world scenario and explain implementation step by step.
+
+7. Code Examples
+
+Provide:
+
+Apex code
+Trigger code
+Async Apex code (if relevant)
+SOQL examples
+Test classes
+
+Add comments in code.
+
+8. Best Practices
+
+Explain:
+
+Governor limits considerations
+Bulkification
+Security best practices
+Optimization tips
+9. Common Mistakes
+
+List mistakes beginners usually make.
+
+10. Interview Questions
+
+Add:
+
+Beginner questions
+Intermediate questions
+Scenario-based questions
+11. Practice Problems
+
+Create:
+
+Easy problems
+Medium problems
+Hard problems
+12. Assignment
+
+Give one real-world assignment/project.
+
+13. Quiz
+
+Generate 10 MCQs with answers.
+
+14. Summary
+
+Provide concise revision notes.
+
+15. Related Topics
+
+Suggest next topics to learn.
+
+Formatting Requirements
+Use markdown formatting
+Use headings and subheadings
+Use tables where useful
+Use bullet points
+Highlight important notes
+Keep explanation practical and industry-focused
+Additional Requirements
+Make content original and detailed
+Include Salesforce best practices
+Include production-level coding standards
+Include interview-focused explanations
+Include performance optimization techniques
+Include security considerations
+Difficulty Level
+
+Generate content for:
+
+Beginner
+Intermediate
+Advanced
+Output Style
+
+The article should look like a premium documentation/tutorial website similar to:
+
+LeetCode Learn
+Salesforce Trailhead
+GeeksforGeeks
+InterviewBit
+
+Now generate the complete article for:

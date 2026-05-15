@@ -1,0 +1,696 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Apex Arena - Salesforce coding practice API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: problems
+    description: Problem library
+  - name: submissions
+    description: Code submissions and execution
+  - name: users
+    description: User profiles and stats
+  - name: stats
+    description: Platform stats
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /problems:
+    get:
+      operationId: listProblems
+      tags: [problems]
+      summary: List problems with optional filters
+      parameters:
+        - in: query
+          name: category
+          schema:
+            $ref: "#/components/schemas/ProblemCategory"
+        - in: query
+          name: difficulty
+          schema:
+            $ref: "#/components/schemas/Difficulty"
+        - in: query
+          name: tag
+          schema:
+            type: string
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: userId
+          schema:
+            type: string
+            description: If supplied, includes the user's solved status per problem
+      responses:
+        "200":
+          description: List of problems
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProblemSummary"
+
+  /problems/{slug}:
+    get:
+      operationId: getProblem
+      tags: [problems]
+      summary: Get a single problem with full details
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Problem details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /problems/featured:
+    get:
+      operationId: listFeaturedProblems
+      tags: [problems]
+      summary: Curated problems shown on the home page
+      responses:
+        "200":
+          description: Featured problems
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProblemSummary"
+
+  /problems/tags:
+    get:
+      operationId: listTags
+      tags: [problems]
+      summary: All available problem tags with counts
+      responses:
+        "200":
+          description: Tag list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TagCount"
+
+  /submissions:
+    post:
+      operationId: createSubmission
+      tags: [submissions]
+      summary: Submit code for a problem and run it through the simulated engine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmissionInput"
+      responses:
+        "200":
+          description: Submission result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionResult"
+
+  /submissions/run:
+    post:
+      operationId: runCode
+      tags: [submissions]
+      summary: Run code against sample (visible) test cases only - does not save
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunCodeInput"
+      responses:
+        "200":
+          description: Run result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunResult"
+
+  /submissions/user/{userId}:
+    get:
+      operationId: listUserSubmissions
+      tags: [submissions]
+      summary: All submissions for a user (newest first)
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubmissionSummary"
+
+  /users/{userId}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get a user profile (creates one with this id if not present)
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /users/{userId}/stats:
+    get:
+      operationId: getUserStats
+      tags: [users]
+      summary: Aggregated stats for a user (solved counts by category and difficulty, streak, recent activity)
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserStats"
+
+  /users/upsert:
+    post:
+      operationId: upsertUser
+      tags: [users]
+      summary: Create or update a user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertUserInput"
+      responses:
+        "200":
+          description: Upserted user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /stats/platform:
+    get:
+      operationId: getPlatformStats
+      tags: [stats]
+      summary: Platform-wide stats (totals by category and difficulty)
+      responses:
+        "200":
+          description: Platform stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformStats"
+
+  /stats/leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [stats]
+      summary: Top users by problems solved
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    ProblemCategory:
+      type: string
+      enum: [trigger, async_apex, classes, soql]
+
+    Difficulty:
+      type: string
+      enum: [easy, medium, hard]
+
+    ProblemKind:
+      type: string
+      enum: [trigger, class, batch, queueable, schedulable, future, soql]
+      description: The shape of code expected from the user
+
+    SubmissionStatus:
+      type: string
+      enum: [accepted, wrong_answer, runtime_error, compile_error, time_limit_exceeded, governor_limit_exceeded]
+
+    TagCount:
+      type: object
+      properties:
+        tag:
+          type: string
+        count:
+          type: integer
+      required: [tag, count]
+
+    ProblemSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        title:
+          type: string
+        category:
+          $ref: "#/components/schemas/ProblemCategory"
+        difficulty:
+          $ref: "#/components/schemas/Difficulty"
+        kind:
+          $ref: "#/components/schemas/ProblemKind"
+        tags:
+          type: array
+          items:
+            type: string
+        acceptanceRate:
+          type: number
+          description: Percentage 0-100
+        totalSubmissions:
+          type: integer
+        solved:
+          type: boolean
+          description: Whether the requesting user has solved it (only present when userId is supplied)
+      required: [id, slug, title, category, difficulty, kind, tags, acceptanceRate, totalSubmissions]
+
+    TestCase:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        hidden:
+          type: boolean
+      required: [name, description, hidden]
+
+    ProblemDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        title:
+          type: string
+        category:
+          $ref: "#/components/schemas/ProblemCategory"
+        difficulty:
+          $ref: "#/components/schemas/Difficulty"
+        kind:
+          $ref: "#/components/schemas/ProblemKind"
+        tags:
+          type: array
+          items:
+            type: string
+        statement:
+          type: string
+          description: Markdown-style problem description
+        hints:
+          type: array
+          items:
+            type: string
+        starterCode:
+          type: string
+        sampleTests:
+          type: array
+          items:
+            $ref: "#/components/schemas/TestCase"
+        hiddenTestCount:
+          type: integer
+        acceptanceRate:
+          type: number
+        totalSubmissions:
+          type: integer
+        solved:
+          type: boolean
+      required:
+        - id
+        - slug
+        - title
+        - category
+        - difficulty
+        - kind
+        - tags
+        - statement
+        - hints
+        - starterCode
+        - sampleTests
+        - hiddenTestCount
+        - acceptanceRate
+        - totalSubmissions
+
+    TestResult:
+      type: object
+      properties:
+        name:
+          type: string
+        passed:
+          type: boolean
+        message:
+          type: string
+        hidden:
+          type: boolean
+        executionTimeMs:
+          type: integer
+      required: [name, passed, message, hidden, executionTimeMs]
+
+    GovernorLimits:
+      type: object
+      properties:
+        soqlQueries:
+          type: integer
+        soqlQueryRows:
+          type: integer
+        dmlStatements:
+          type: integer
+        dmlRows:
+          type: integer
+        cpuTimeMs:
+          type: integer
+        heapSizeBytes:
+          type: integer
+      required: [soqlQueries, soqlQueryRows, dmlStatements, dmlRows, cpuTimeMs, heapSizeBytes]
+
+    SubmissionResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          $ref: "#/components/schemas/SubmissionStatus"
+        passedCount:
+          type: integer
+        totalCount:
+          type: integer
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/TestResult"
+        debugLog:
+          type: array
+          items:
+            type: string
+        compileError:
+          type: string
+          nullable: true
+        runtimeError:
+          type: string
+          nullable: true
+        governorLimits:
+          $ref: "#/components/schemas/GovernorLimits"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - status
+        - passedCount
+        - totalCount
+        - results
+        - debugLog
+        - governorLimits
+        - createdAt
+
+    RunResult:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/TestResult"
+        debugLog:
+          type: array
+          items:
+            type: string
+        compileError:
+          type: string
+          nullable: true
+        runtimeError:
+          type: string
+          nullable: true
+        governorLimits:
+          $ref: "#/components/schemas/GovernorLimits"
+      required: [results, debugLog, governorLimits]
+
+    SubmissionSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        problemSlug:
+          type: string
+        problemTitle:
+          type: string
+        category:
+          $ref: "#/components/schemas/ProblemCategory"
+        difficulty:
+          $ref: "#/components/schemas/Difficulty"
+        status:
+          $ref: "#/components/schemas/SubmissionStatus"
+        passedCount:
+          type: integer
+        totalCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - problemSlug
+        - problemTitle
+        - category
+        - difficulty
+        - status
+        - passedCount
+        - totalCount
+        - createdAt
+
+    SubmissionInput:
+      type: object
+      properties:
+        userId:
+          type: string
+        problemSlug:
+          type: string
+        code:
+          type: string
+      required: [userId, problemSlug, code]
+
+    RunCodeInput:
+      type: object
+      properties:
+        problemSlug:
+          type: string
+        code:
+          type: string
+      required: [problemSlug, code]
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        joinedAt:
+          type: string
+          format: date-time
+        solvedCount:
+          type: integer
+        submissionCount:
+          type: integer
+      required: [id, username, joinedAt, solvedCount, submissionCount]
+
+    UpsertUserInput:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+      required: [id, username]
+
+    CategoryProgress:
+      type: object
+      properties:
+        category:
+          $ref: "#/components/schemas/ProblemCategory"
+        solved:
+          type: integer
+        total:
+          type: integer
+      required: [category, solved, total]
+
+    DifficultyProgress:
+      type: object
+      properties:
+        difficulty:
+          $ref: "#/components/schemas/Difficulty"
+        solved:
+          type: integer
+        total:
+          type: integer
+      required: [difficulty, solved, total]
+
+    RecentActivity:
+      type: object
+      properties:
+        problemSlug:
+          type: string
+        problemTitle:
+          type: string
+        status:
+          $ref: "#/components/schemas/SubmissionStatus"
+        createdAt:
+          type: string
+          format: date-time
+      required: [problemSlug, problemTitle, status, createdAt]
+
+    UserStats:
+      type: object
+      properties:
+        userId:
+          type: string
+        username:
+          type: string
+        solvedCount:
+          type: integer
+        submissionCount:
+          type: integer
+        acceptanceRate:
+          type: number
+        currentStreakDays:
+          type: integer
+        byCategory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryProgress"
+        byDifficulty:
+          type: array
+          items:
+            $ref: "#/components/schemas/DifficultyProgress"
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecentActivity"
+      required:
+        - userId
+        - username
+        - solvedCount
+        - submissionCount
+        - acceptanceRate
+        - currentStreakDays
+        - byCategory
+        - byDifficulty
+        - recentActivity
+
+    PlatformStats:
+      type: object
+      properties:
+        totalProblems:
+          type: integer
+        totalSubmissions:
+          type: integer
+        totalUsers:
+          type: integer
+        byCategory:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                $ref: "#/components/schemas/ProblemCategory"
+              count:
+                type: integer
+            required: [category, count]
+        byDifficulty:
+          type: array
+          items:
+            type: object
+            properties:
+              difficulty:
+                $ref: "#/components/schemas/Difficulty"
+              count:
+                type: integer
+            required: [difficulty, count]
+      required: [totalProblems, totalSubmissions, totalUsers, byCategory, byDifficulty]
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        userId:
+          type: string
+        username:
+          type: string
+        solvedCount:
+          type: integer
+        submissionCount:
+          type: integer
+      required: [userId, username, solvedCount, submissionCount]

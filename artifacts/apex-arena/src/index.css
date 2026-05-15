@@ -1,0 +1,158 @@
+@layer theme, base, clerk, components, utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@clerk/themes/shadcn.css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --breakpoint-xs: 30rem;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: var(--border);
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+:root, .dark {
+  /* Deep dark background #08090E */
+  --background: 230 28% 4%;
+  --foreground: 210 40% 98%;
+  
+  --card: 230 28% 6%;
+  --card-foreground: 210 40% 98%;
+  --card-border: 230 28% 12%;
+
+  --popover: 230 28% 6%;
+  --popover-foreground: 210 40% 98%;
+  --popover-border: 230 28% 12%;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --input: 230 28% 12%;
+  
+  /* Electric Cyan #00E5FF */
+  --primary: 186 100% 50%;
+  --primary-foreground: 230 28% 4%;
+  
+  --secondary: 230 28% 12%;
+  --secondary-foreground: 210 40% 98%;
+  
+  --muted: 230 28% 12%;
+  --muted-foreground: 215 20% 65%;
+
+  --accent: 186 100% 50%;
+  --accent-foreground: 230 28% 4%;
+
+  --destructive: 350 89% 60%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --success: 152 69% 41%;
+  --success-foreground: 0 0% 100%;
+  
+  --warning: 35 92% 53%;
+  --warning-foreground: 0 0% 100%;
+  
+  --ring: 186 100% 50%;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground selection:bg-primary/20 selection:text-primary;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.bg-grid-pattern {
+  background-image: linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.glow-text {
+  text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+}
+
+.glow-card {
+  transition: box-shadow 0.3s ease;
+}
+.glow-card:hover {
+  box-shadow: 0 0 20px hsl(var(--primary) / 0.1);
+}
